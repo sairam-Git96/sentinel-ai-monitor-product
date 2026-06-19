@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { toast } from "sonner";
 import {
   AlertTriangle, Bot, Brain, CheckCircle2, ChevronRight, Clock, Download,
-  FileText, Flame, MessageSquare, Play, RefreshCw, Search, Send, ShieldAlert,
+  FileText, Flame, MessageSquare, Network, Play, RefreshCw, Search, Send, ShieldAlert,
   Sparkles, Upload, UserPlus, XCircle,
 } from "lucide-react";
 import {
@@ -431,7 +431,7 @@ function InvestigationModule() {
           <Tabs defaultValue="reasoning">
             <TabsList className="grid grid-cols-5 w-full">
               <TabsTrigger value="reasoning"><Brain className="size-3.5 mr-1" />AI Reasoning</TabsTrigger>
-              <TabsTrigger value="rca"><Network /> Root Cause</TabsTrigger>
+              <TabsTrigger value="rca"><Network className="size-3.5 mr-1" />Root Cause</TabsTrigger>
               <TabsTrigger value="timeline"><Clock className="size-3.5 mr-1" />Timeline</TabsTrigger>
               <TabsTrigger value="recs"><Sparkles className="size-3.5 mr-1" />Recommendations</TabsTrigger>
               <TabsTrigger value="notes"><MessageSquare className="size-3.5 mr-1" />Notes</TabsTrigger>
@@ -585,6 +585,3 @@ function InvestigationModule() {
     </AppShell>
   );
 }
-
-// local Network icon shim — keep imports tidy
-function Network() { return <Search className="size-3.5 mr-1" />; }
