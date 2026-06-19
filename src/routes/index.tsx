@@ -66,8 +66,8 @@ function Landing() {
               and explains root cause in plain language — so Risk, Fraud, and Ops teams can act in seconds, not hours.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/app/dashboard" className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
-                View Live Dashboard <ArrowRight className="size-4" />
+              <Link to="/login" className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
+                Get Started <ArrowRight className="size-4" />
               </Link>
               <Link to="/login" className="inline-flex items-center gap-2 px-5 py-3 rounded-md border bg-card text-sm font-medium hover:bg-muted">
                 Request Demo
@@ -243,8 +243,8 @@ function Landing() {
           Launch the live demo with realistic data across 5 countries, 6 MCCs, and 25 active anomalies.
         </p>
         <div className="mt-6 flex justify-center gap-3">
-          <Link to="/app/dashboard" className="px-5 py-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 inline-flex items-center gap-2">
-            View Dashboard <ArrowRight className="size-4" />
+          <Link to="/login" className="px-5 py-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 inline-flex items-center gap-2">
+            Get Started <ArrowRight className="size-4" />
           </Link>
           <Link to="/login" className="px-5 py-3 rounded-md border bg-card text-sm font-medium hover:bg-muted">
             Request Demo
