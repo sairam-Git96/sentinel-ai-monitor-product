@@ -3,6 +3,8 @@ import {
   Sparkles, ShieldCheck, Activity, Brain, BarChart3, Globe2,
   ArrowRight, Bot, CheckCircle2, Zap,
 } from "lucide-react";
+import heroImg from "@/assets/hero-dashboard.jpg";
+import assistantImg from "@/assets/ai-assistant.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,8 +39,8 @@ function Landing() {
           </nav>
           <div className="ml-auto flex items-center gap-2">
             <Link to="/login" className="text-sm px-3 py-1.5 rounded-md hover:bg-muted">Login</Link>
-            <Link to="/app/dashboard" className="text-sm px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center gap-1.5">
-              View Dashboard <ArrowRight className="size-3.5" />
+            <Link to="/login" className="text-sm px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center gap-1.5">
+              Get Started <ArrowRight className="size-3.5" />
             </Link>
           </div>
         </div>
@@ -49,7 +51,8 @@ function Landing() {
         <div className="absolute inset-0 ring-grid pointer-events-none" />
         <div className="absolute -top-40 -right-40 size-[600px] rounded-full bg-accent/20 blur-3xl" />
         <div className="max-w-7xl mx-auto px-6 py-20 md:py-28 relative">
-          <div className="max-w-3xl">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
             <div className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs text-muted-foreground">
               <span className="size-1.5 rounded-full bg-success animate-pulse" />
               Trusted by global card issuers · SOC2-aligned
@@ -69,9 +72,17 @@ function Landing() {
               <Link to="/login" className="inline-flex items-center gap-2 px-5 py-3 rounded-md border bg-card text-sm font-medium hover:bg-muted">
                 Request Demo
               </Link>
-              <Link to="/login" className="inline-flex items-center gap-2 px-5 py-3 rounded-md text-sm font-medium hover:bg-muted">
-                Login
-              </Link>
+            </div>
+            </div>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-tr from-accent/30 to-primary/30 blur-2xl rounded-3xl" />
+              <img
+                src={heroImg}
+                alt="Sentinel AI transaction monitoring dashboard"
+                width={1536}
+                height={1024}
+                className="relative rounded-2xl border shadow-2xl shadow-primary/20 w-full h-auto"
+              />
             </div>
           </div>
 
@@ -153,6 +164,14 @@ function Landing() {
         <div>
           <div className="text-xs uppercase tracking-widest text-accent font-medium">AI Assistant</div>
           <h2 className="mt-2 text-3xl md:text-4xl font-semibold tracking-tight">Ask Sentinel like a colleague.</h2>
+          <img
+            src={assistantImg}
+            alt="AI fraud shield"
+            width={1024}
+            height={1024}
+            loading="lazy"
+            className="mt-6 rounded-xl border w-full max-w-sm"
+          />
           <p className="mt-4 text-muted-foreground">
             Natural-language queries over your authorization data, fraud signals, and case history. Get explanations,
             comparisons, and recommended actions instantly.
