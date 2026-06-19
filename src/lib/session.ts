@@ -53,7 +53,7 @@ export const ROLES: RoleDef[] = [
     short: "Analyst",
     description:
       "Monitors transaction health metrics, investigates anomalies, reviews AI insights, and initiates corrective actions.",
-    permissions: ["dashboard", "transactions", "anomalies", "rca", "assistant", "cases", "reports", "help"],
+    permissions: ["dashboard", "transactions", "anomalies", "rca", "assistant", "cases", "reports", "investigation", "help"],
     activities: ["Reviewing Anomalies", "Monitoring Approval Rate", "Triaging AI Insights"],
   },
   {
