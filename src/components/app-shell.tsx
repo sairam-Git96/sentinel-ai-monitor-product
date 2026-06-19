@@ -4,7 +4,7 @@ import {
   LayoutDashboard, AlertTriangle, Bot, Briefcase, FileText, Bell, ShieldCheck,
   Search, Sparkles, ChevronRight, Settings, X, Activity, Network, Flame, BarChart3,
   Users, KeyRound, PanelLeftClose, PanelLeftOpen, LogOut, Power, ChevronDown,
-  User as UserIcon, History, Sliders, LifeBuoy, Mail, Building2,
+  User as UserIcon, History, Sliders, LifeBuoy, Mail, Building2, SearchCheck,
 } from "lucide-react";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
@@ -38,6 +38,7 @@ const NAV: NavItem[] = [
   { to: "/app/rca",            label: "Root Cause Analysis",     icon: Network,         perm: "rca",          group: "Detection",       tooltip: "Drill down into contributing factors for each anomaly." },
   { to: "/app/assistant",      label: "AI Diagnostic Assistant", icon: Bot,             perm: "assistant",    group: "Intelligence",    tooltip: "Ask questions and get grounded AI explanations." },
   { to: "/app/investigations", label: "Case Management",         icon: Briefcase,       perm: "cases",        group: "Investigations",  tooltip: "Create, assign, and track investigation cases." },
+  { to: "/app/investigation",  label: "Investigation Module",    icon: SearchCheck,     perm: "investigation",group: "Investigations",  tooltip: "AI-assisted anomaly investigation workspace." },
   { to: "/app/incidents",      label: "Incident Management",     icon: Flame,           perm: "incidents",    group: "Investigations",  tooltip: "Manage operational and fraud incidents." },
   { to: "/app/fraud",          label: "Fraud Analytics",         icon: BarChart3,       perm: "fraud",        group: "Intelligence",    tooltip: "Review fraud trends, patterns, and attack vectors." },
   { to: "/app/reports",        label: "Reports & Analytics",     icon: FileText,        perm: "reports",      group: "Reporting",       tooltip: "Generate and export business reports." },
