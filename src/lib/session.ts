@@ -21,6 +21,7 @@ export type Permission =
   | "fraud"
   | "reports"
   | "executive"
+  | "investigation"
   | "users"
   | "roles"
   | "audit"
@@ -52,7 +53,7 @@ export const ROLES: RoleDef[] = [
     short: "Analyst",
     description:
       "Monitors transaction health metrics, investigates anomalies, reviews AI insights, and initiates corrective actions.",
-    permissions: ["dashboard", "transactions", "anomalies", "rca", "assistant", "cases", "reports", "help"],
+    permissions: ["dashboard", "transactions", "anomalies", "rca", "assistant", "cases", "reports", "investigation", "help"],
     activities: ["Reviewing Anomalies", "Monitoring Approval Rate", "Triaging AI Insights"],
   },
   {
@@ -61,7 +62,7 @@ export const ROLES: RoleDef[] = [
     short: "Investigator",
     description:
       "Owns end-to-end fraud cases. Investigates attack vectors, links incidents to cases, and coordinates response.",
-    permissions: ["dashboard", "anomalies", "fraud", "cases", "incidents", "assistant", "help"],
+    permissions: ["dashboard", "anomalies", "fraud", "cases", "incidents", "assistant", "investigation", "help"],
     activities: ["Investigating Fraud Spike", "Building Case File", "Linking Incidents"],
   },
   {
@@ -70,7 +71,7 @@ export const ROLES: RoleDef[] = [
     short: "Operations",
     description:
       "Oversees authorization performance, vendor health, and operational incidents across regions and channels.",
-    permissions: ["dashboard", "transactions", "incidents", "reports", "executive", "help"],
+    permissions: ["dashboard", "transactions", "incidents", "reports", "executive", "investigation", "help"],
     activities: ["Monitoring Issuer Latency", "Reviewing Decline Codes", "Creating Incident Report"],
   },
   {
@@ -79,7 +80,7 @@ export const ROLES: RoleDef[] = [
     short: "Compliance",
     description:
       "Ensures regulatory adherence. Reviews audit trails, case dispositions, and controls evidence retention.",
-    permissions: ["dashboard", "cases", "audit", "reports", "help"],
+    permissions: ["dashboard", "cases", "audit", "reports", "investigation", "help"],
     activities: ["Reviewing Audit Logs", "Validating Case Closure", "Preparing Regulatory Report"],
   },
   {
@@ -104,6 +105,7 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   fraud: "Fraud Analytics",
   reports: "Reports & Analytics",
   executive: "Executive Dashboard",
+  investigation: "Investigation Module",
   users: "User Management",
   roles: "Role Management",
   audit: "Audit Logs",
