@@ -21,7 +21,6 @@ import { Route as AppReportsRouteImport } from './routes/app.reports'
 import { Route as AppRcaRouteImport } from './routes/app.rca'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppInvestigationsRouteImport } from './routes/app.investigations'
-import { Route as AppInvestigationRouteImport } from './routes/app.investigation'
 import { Route as AppIncidentsRouteImport } from './routes/app.incidents'
 import { Route as AppHelpRouteImport } from './routes/app.help'
 import { Route as AppFraudRouteImport } from './routes/app.fraud'
@@ -91,11 +90,6 @@ const AppInvestigationsRoute = AppInvestigationsRouteImport.update({
   path: '/investigations',
   getParentRoute: () => AppRoute,
 } as any)
-const AppInvestigationRoute = AppInvestigationRouteImport.update({
-  id: '/investigation',
-  path: '/investigation',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppIncidentsRoute = AppIncidentsRouteImport.update({
   id: '/incidents',
   path: '/incidents',
@@ -149,7 +143,6 @@ export interface FileRoutesByFullPath {
   '/app/fraud': typeof AppFraudRoute
   '/app/help': typeof AppHelpRoute
   '/app/incidents': typeof AppIncidentsRoute
-  '/app/investigation': typeof AppInvestigationRoute
   '/app/investigations': typeof AppInvestigationsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/rca': typeof AppRcaRoute
@@ -171,7 +164,6 @@ export interface FileRoutesByTo {
   '/app/fraud': typeof AppFraudRoute
   '/app/help': typeof AppHelpRoute
   '/app/incidents': typeof AppIncidentsRoute
-  '/app/investigation': typeof AppInvestigationRoute
   '/app/investigations': typeof AppInvestigationsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/rca': typeof AppRcaRoute
@@ -195,7 +187,6 @@ export interface FileRoutesById {
   '/app/fraud': typeof AppFraudRoute
   '/app/help': typeof AppHelpRoute
   '/app/incidents': typeof AppIncidentsRoute
-  '/app/investigation': typeof AppInvestigationRoute
   '/app/investigations': typeof AppInvestigationsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/rca': typeof AppRcaRoute
@@ -220,7 +211,6 @@ export interface FileRouteTypes {
     | '/app/fraud'
     | '/app/help'
     | '/app/incidents'
-    | '/app/investigation'
     | '/app/investigations'
     | '/app/notifications'
     | '/app/rca'
@@ -242,7 +232,6 @@ export interface FileRouteTypes {
     | '/app/fraud'
     | '/app/help'
     | '/app/incidents'
-    | '/app/investigation'
     | '/app/investigations'
     | '/app/notifications'
     | '/app/rca'
@@ -265,7 +254,6 @@ export interface FileRouteTypes {
     | '/app/fraud'
     | '/app/help'
     | '/app/incidents'
-    | '/app/investigation'
     | '/app/investigations'
     | '/app/notifications'
     | '/app/rca'
@@ -369,13 +357,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInvestigationsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/investigation': {
-      id: '/app/investigation'
-      path: '/investigation'
-      fullPath: '/app/investigation'
-      preLoaderRoute: typeof AppInvestigationRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/incidents': {
       id: '/app/incidents'
       path: '/incidents'
@@ -444,7 +425,6 @@ interface AppRouteChildren {
   AppFraudRoute: typeof AppFraudRoute
   AppHelpRoute: typeof AppHelpRoute
   AppIncidentsRoute: typeof AppIncidentsRoute
-  AppInvestigationRoute: typeof AppInvestigationRoute
   AppInvestigationsRoute: typeof AppInvestigationsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppRcaRoute: typeof AppRcaRoute
@@ -465,7 +445,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppFraudRoute: AppFraudRoute,
   AppHelpRoute: AppHelpRoute,
   AppIncidentsRoute: AppIncidentsRoute,
-  AppInvestigationRoute: AppInvestigationRoute,
   AppInvestigationsRoute: AppInvestigationsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppRcaRoute: AppRcaRoute,
