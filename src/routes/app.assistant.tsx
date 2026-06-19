@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState, useEffect, useMemo } from "react";
-import { Bot, Send, Sparkles, User, Info } from "lucide-react";
+import { Bot, Send, Sparkles, User, Info, Plus, Trash2, History, MessageSquare } from "lucide-react";
 import { AppShell, Pill, GroundingBadge } from "@/components/app-shell";
 import {
   ASSISTANT_QA, generateAnomalies, buildAnomalyContext, buildSystemPrompt,
@@ -18,6 +18,41 @@ interface Msg {
   ts: number;
   grounding?: GroundingTier;
   anomalyId?: string;
+}
+
+interface ChatSession {
+  id: string;
+  title: string;
+  anomalyId: string;
+  messages: Msg[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+const HISTORY_KEY = "sentinel.assistant.history.v1";
+
+function loadSessions(): ChatSession[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(HISTORY_KEY);
+    return raw ? (JSON.parse(raw) as ChatSession[]) : [];
+  } catch { return []; }
+}
+
+function saveSessions(sessions: ChatSession[]) {
+  if (typeof window === "undefined") return;
+  try { window.localStorage.setItem(HISTORY_KEY, JSON.stringify(sessions)); } catch {}
+}
+
+function formatRelTime(ts: number): string {
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
 }
 
 const MAX_TURNS = 10;
@@ -90,19 +125,117 @@ ${dec.map((d) => `- **${d.code}** ${d.label} — ${d.share}% share (${d.change >
 function Assistant() {
   const anomalies = useMemo(() => generateAnomalies(25), []);
   const [active, setActive] = useState<Anomaly>(anomalies[0]);
-  const [messages, setMessages] = useState<Msg[]>([
-    {
-      role: "assistant",
-      ts: Date.now(),
-      grounding: "grounded",
-      content: "Hi, I'm **Sentinel** — your grounded AI diagnostic assistant. I'm currently analyzing anomaly **ANM-1000** (Approval Rate Drop). Ask me anything about it — I only answer from the injected anomaly context.",
-    },
-  ]);
+  const greeting = (a: Anomaly): Msg => ({
+    role: "assistant",
+    ts: Date.now(),
+    grounding: "grounded",
+    content: `Hi, I'm **Sentinel** — your grounded AI diagnostic assistant. I'm currently analyzing anomaly **${a.id}** (${a.metric}). Ask me anything about it — I only answer from the injected anomaly context.`,
+  });
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [currentId, setCurrentId] = useState<string>("");
+  const [messages, setMessages] = useState<Msg[]>([greeting(anomalies[0])]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
+  // Bootstrap from localStorage
+  useEffect(() => {
+    const loaded = loadSessions();
+    setSessions(loaded);
+    if (loaded.length > 0) {
+      const last = loaded[0];
+      setCurrentId(last.id);
+      setMessages(last.messages);
+      const anom = anomalies.find((a) => a.id === last.anomalyId);
+      if (anom) setActive(anom);
+    } else {
+      // Create initial session
+      const id = `s_${Date.now()}`;
+      const initial: ChatSession = {
+        id, title: "New conversation", anomalyId: anomalies[0].id,
+        messages: [greeting(anomalies[0])], createdAt: Date.now(), updatedAt: Date.now(),
+      };
+      setSessions([initial]);
+      setCurrentId(id);
+      saveSessions([initial]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist current session whenever messages change
+  useEffect(() => {
+    if (!currentId) return;
+    setSessions((prev) => {
+      const next = prev.map((s) => {
+        if (s.id !== currentId) return s;
+        const firstUser = messages.find((m) => m.role === "user");
+        const title = firstUser ? firstUser.content.slice(0, 48) : s.title;
+        return { ...s, messages, anomalyId: active.id, title, updatedAt: Date.now() };
+      });
+      saveSessions(next);
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, active.id]);
+
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, thinking]);
+
+  const newChat = () => {
+    const id = `s_${Date.now()}`;
+    const fresh: ChatSession = {
+      id, title: "New conversation", anomalyId: active.id,
+      messages: [greeting(active)], createdAt: Date.now(), updatedAt: Date.now(),
+    };
+    const next = [fresh, ...sessions];
+    setSessions(next);
+    saveSessions(next);
+    setCurrentId(id);
+    setMessages(fresh.messages);
+  };
+
+  const loadSession = (id: string) => {
+    const s = sessions.find((x) => x.id === id);
+    if (!s) return;
+    setCurrentId(id);
+    setMessages(s.messages);
+    const anom = anomalies.find((a) => a.id === s.anomalyId);
+    if (anom) setActive(anom);
+  };
+
+  const deleteSession = (id: string) => {
+    const next = sessions.filter((s) => s.id !== id);
+    setSessions(next);
+    saveSessions(next);
+    if (id === currentId) {
+      if (next.length > 0) loadSession(next[0].id);
+      else {
+        const nid = `s_${Date.now()}`;
+        const fresh: ChatSession = {
+          id: nid, title: "New conversation", anomalyId: active.id,
+          messages: [greeting(active)], createdAt: Date.now(), updatedAt: Date.now(),
+        };
+        setSessions([fresh]);
+        saveSessions([fresh]);
+        setCurrentId(nid);
+        setMessages(fresh.messages);
+      }
+    }
+  };
+
+  const clearAllHistory = () => {
+    if (!window.confirm("Clear all conversation history?")) return;
+    saveSessions([]);
+    setSessions([]);
+    const nid = `s_${Date.now()}`;
+    const fresh: ChatSession = {
+      id: nid, title: "New conversation", anomalyId: active.id,
+      messages: [greeting(active)], createdAt: Date.now(), updatedAt: Date.now(),
+    };
+    setSessions([fresh]);
+    saveSessions([fresh]);
+    setCurrentId(nid);
+    setMessages(fresh.messages);
+  };
 
   const send = (text: string) => {
     if (!text.trim()) return;
@@ -128,10 +261,71 @@ function Assistant() {
     <AppShell
       title="AI Diagnostic Assistant"
       subtitle="Grounded conversational analytics — every answer cites injected anomaly context."
-      actions={<Pill tone="info"><Sparkles className="size-2.5" /> Grounded LLM · Online</Pill>}
+      actions={
+        <div className="flex items-center gap-2">
+          <button
+            onClick={newChat}
+            className="h-8 px-3 rounded-md border bg-card text-xs font-medium inline-flex items-center gap-1.5 hover:bg-muted"
+          >
+            <Plus className="size-3.5" /> New Chat
+          </button>
+          <Pill tone="info"><Sparkles className="size-2.5" /> Grounded LLM · Online</Pill>
+        </div>
+      }
     >
       <div className="grid lg:grid-cols-4 gap-4 h-[calc(100vh-260px)]">
         <aside className="rounded-xl border bg-card p-4 overflow-y-auto space-y-4">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
+                <History className="size-3" /> Chat History
+              </div>
+              {sessions.length > 0 && (
+                <button
+                  onClick={clearAllHistory}
+                  className="text-[10px] text-muted-foreground hover:text-destructive"
+                  title="Clear all history"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+              {sessions.length === 0 && (
+                <div className="text-[11px] text-muted-foreground italic px-2 py-3">No past conversations yet.</div>
+              )}
+              {sessions.map((s) => {
+                const isActive = s.id === currentId;
+                return (
+                  <div
+                    key={s.id}
+                    className={`group flex items-start gap-1.5 rounded-md px-2 py-1.5 border text-xs cursor-pointer ${
+                      isActive ? "bg-accent/10 border-accent/30" : "border-transparent hover:bg-muted"
+                    }`}
+                    onClick={() => loadSession(s.id)}
+                  >
+                    <MessageSquare className="size-3 mt-0.5 shrink-0 text-muted-foreground" />
+                    <div className="flex-1 min-w-0">
+                      <div className="truncate font-medium">{s.title}</div>
+                      <div className="text-[10px] text-muted-foreground flex items-center gap-1.5">
+                        <span className="font-mono">{s.anomalyId}</span>
+                        <span>·</span>
+                        <span>{formatRelTime(s.updatedAt)}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
+                      className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive p-0.5"
+                      title="Delete conversation"
+                    >
+                      <Trash2 className="size-3" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div>
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Anomaly Context</div>
             <select
