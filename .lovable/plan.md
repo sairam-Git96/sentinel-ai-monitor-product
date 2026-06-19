@@ -1,78 +1,42 @@
-# Enterprise Enhancement Plan
+## Goal
 
-This is a large, multi-area change. I'll group it into 6 implementation phases so each can be verified before moving on. Before starting, I need to confirm the scope and assumptions below.
+Produce a single, self-contained **MASTER_PROMPT.md** that a fresh Lovable project can be built from end-to-end — covering branding, stack, routes, RBAC, every module, AI integrations, and UX behavior currently present in this app.
 
-## Current state (verified)
+## Where it goes
 
-- App shell + sidebar already exist with routes: dashboard, executive, transactions, fraud, anomalies, rca, investigations, incidents, reports, audit, users, roles, notifications, settings, help, assistant, **and** an existing `app.architecture.tsx`.
-- The "System Architecture" module the prompt asks for already has a route stub; it needs to be built out, not created from scratch.
-- "Executive Dashboard" exists at `/app/executive` and must be fully removed.
-- There is no real backend; all data is mock (`src/lib/mock-data.ts`). Buttons/exports will be wired to client-side mock behavior (CSV download, toasts, dialogs), not real APIs.
+Create one new file:
 
-## Phase 1 — Header & navigation cleanup
+- `MASTER_PROMPT.md` (repo root) — the full rebuild prompt, copy-paste ready.
 
-- Strip header down to: logo, app name, global search, notifications, profile menu, theme switcher, role switcher.
-- Remove: environment selector, help-centre icon, last-updated timestamp, demo labels, env indicators.
-- Sidebar: remove Executive Dashboard entry; keep Architecture entry (rename group as "System Architecture"); ensure active-route highlighting + collapsed icon mode work.
+No source code changes. No deletions. No dependency changes.
 
-## Phase 2 — Executive Dashboard removal
+## What the document will contain
 
-- Delete `src/routes/app.executive.tsx`.
-- Remove all sidebar/menu/route references.
-- Replace landing redirect (`/app` → `/app/dashboard`).
-- Restructure dashboards by role (Admin, Risk Analyst, Operations, Auditor) on a single `/app/dashboard` route that switches sections by the current role from the role switcher. Compliance/Business user fall back to Risk Analyst view.
+1. **Product brief** — Sentinel AI: AI-powered card-transaction monitoring, anomaly detection, RCA, GenAI diagnostics, investigation workflow.
+2. **Tech stack & conventions** — TanStack Start v1, React 19, Vite 7, Tailwind v4 (`src/styles.css` tokens), shadcn/ui, lucide-react, TanStack Router file-based routes, Lovable AI Gateway via `createServerFn` (`google/gemini-3-flash-preview`), client-side mock data + localStorage session (no Lovable Cloud).
+3. **Design system** — dark/light theme, gradient brand tokens (`gradient-brand`, `text-gradient-brand`, `ring-grid`), semantic color tokens only (no hardcoded colors), typography, card/badge/button patterns, info-tooltip pattern.
+4. **Routes inventory** — exact file → URL map for every route currently in `src/routes/` (landing, login, app shell + 18 modules including `dashboard`, `transactions`, `anomalies`, `rca`, `assistant`, `investigation`, `investigations`, `incidents`, `fraud`, `reports`, `audit`, `users`, `roles`, `notifications`, `settings`, `help`, `architecture`).
+5. **Roles & RBAC matrix** — all 6 roles (`super_admin`, `risk_analyst`, `fraud_investigator`, `ops_manager`, `compliance_officer`, `executive`) with their permission sets exactly as defined in `src/lib/session.ts`, plus the Investigation Module access rule (everyone except Executive Viewer).
+6. **Session/auth model** — localStorage-based demo session, role switcher, login screen with quick-sign-in tiles, sign-out hygiene.
+7. **Module-by-module spec** — for each route: purpose, KPIs, tables/charts, filters, actions, dialogs, CSV export, AI actions, empty/loading states. Special depth for:
+   - **Landing page** — hero with `hero-dashboard.jpg`, features, KPI strip, AI assistant preview with `ai-assistant.jpg`, testimonials, CTA (Get Started + Request Demo only — no "View Dashboard" buttons).
+   - **AI Diagnostic Assistant** — streaming chat UX, anomaly context, **Chat History feature** (localStorage key `sentinel.assistant.history.v1`, sessions list, new/load/delete/clear all, relative timestamps).
+   - **Investigation Module** — single-scroll workspace (no tabs): case queue sidebar, filter Sheet, case header with action buttons (Escalate, Re-run AI, Export), 4-col KPI strip, 8-step AI progress pipeline, AI Reasoning + Root Cause grid, Timeline + Recommendations split, notes + evidence, floating AI Copilot dock, RBAC enforcement, real-time progress simulation, CSV report.
+   - **System Architecture** — 12 diagram tabs with hand-authored SVG, pan/zoom, Export SVG.
+   - **Dashboards** — single `/app/dashboard` that switches content by current role.
+8. **AI integration spec** — `createServerFn` in `src/lib/investigate.functions.ts`, Lovable AI Gateway provider helper (`src/lib/ai-gateway.server.ts`), structured output via `Output.object` + Zod, 429/402 error handling, model `google/gemini-3-flash-preview`.
+9. **Shared UI primitives** — `InfoTooltip`, `ModuleActions`, `RangeFilter`, `InvestigateDialog`, `ThemeToggle`, central tooltip registry (`src/lib/tooltips.ts`), CSV export helper (`src/lib/export.ts`), mock data store (`src/lib/mock-data.ts`).
+10. **Cross-cutting requirements** — semantic HTML, SEO `head()` per route, accessible icon buttons, loading skeletons, empty states, keyboard shortcut helper (`?` cheat-sheet, `g d`, `g t`, …), toast confirmations on every action.
+11. **Out of scope / explicit nos** — no real backend, no Executive Dashboard route, no "View Dashboard" / "View Live Dashboard" buttons on landing, no Supabase mention in UI copy.
+12. **Acceptance checklist** — a numbered list a rebuild can verify against (routes exist, RBAC matrix matches, AI server fn returns structured verdict, Investigation single-scroll layout, Assistant history persists, landing CTAs correct, etc.).
 
-## Phase 3 — System Architecture module
+## Length & format
 
-Rebuild `/app/architecture` as a tabbed module with these tabs:
-Solution Overview, Application Layers, User Access Flow, Data Flow, Transaction Processing, AI Detection Engine, RCA Flow, Database ER, API Architecture, Security Architecture, Deployment Architecture, Future Scalability.
+Markdown, ~600–900 lines, organized with H2/H3 sections and tables for the RBAC matrix and route inventory. Self-contained — readable without seeing the current codebase.
 
-Per tab: an SVG/Mermaid-style interactive diagram (pan/zoom via CSS transform + buttons), expandable cards explaining each component, hover tooltips, and an "Export SVG" button that downloads the rendered diagram. Diagrams are hand-authored SVG (no external lib needed) for crispness and zero deps.
+## After approval
 
-## Phase 4 — Global tooltip framework
-
-- Add a reusable `<InfoTooltip>` component built on shadcn `Tooltip` + `Popover` (hover for desktop, click for touch) that renders a structured card: Definition, Purpose, Usage, Formula, Example, Impact, Recommended Action.
-- Add a central `src/lib/tooltips.ts` registry keyed by metric/field id so content is consistent and easy to maintain.
-- Wire it into KPI cards, table column headers, chart titles, filter labels, status badges, and action icon buttons across dashboard, transactions, fraud, anomalies, rca, audit, investigations, incidents, reports.
-
-## Phase 5 — Functional buttons
-
-Make every visible button do something meaningful with mock data:
-- Export CSV / Excel / PDF / Print → generate file client-side (CSV via Blob, "Excel" as .csv with xlsx mime, PDF via `window.print()` of a printable view) and toast confirmation.
-- Add / Edit / Delete / Save / Archive / Restore → open shadcn Dialog, update in-memory store (Zustand) seeded from mock data, toast result.
-- Filter / Search / Sort / Group → wire to TanStack Table state on each table.
-- AI actions (Generate Insight, RCA, Summary, Recommendation, Explain Anomaly) → call a local `generateMockInsight()` that streams canned but plausible content into a side panel.
-- User admin actions → dialogs that mutate the in-memory users store.
-
-## Phase 6 — Polish & consistency
-
-- Loading skeletons + empty-state components on every list/table.
-- Keyboard shortcut helper (`?` opens cheat-sheet dialog; `g d` dashboard, `g t` transactions, etc.).
-- Accessibility pass: aria-labels on all icon buttons, focus rings, `<main>` landmark, contrast tokens.
-- Standardize Card/Button/Table/Badge usage across modules; remove any remaining placeholder text.
-
-## Out of scope (please confirm)
-
-- No real backend / Lovable Cloud — all data stays mock + in-memory.
-- "Real PDF export" uses the browser print dialog, not a PDF library, to stay light.
-- "Guided onboarding" = a single dismissible coach-mark tour on first dashboard visit, not a full product-tour system.
-- "Schedule Report" = a dialog that records the schedule in the mock store; no actual cron.
-
-## Technical notes
-
-- Stack: TanStack Start + Router, shadcn/ui, Tailwind v4, lucide-react. No new heavy deps; add `zustand` for the in-memory mutable store and `papaparse` only if needed for CSV (otherwise hand-roll).
-- New files: `src/lib/tooltips.ts`, `src/components/info-tooltip.tsx`, `src/components/export-menu.tsx`, `src/components/keyboard-shortcuts.tsx`, `src/components/architecture/*` (one file per diagram tab), `src/stores/*` for mock CRUD.
-- Deleted files: `src/routes/app.executive.tsx`.
-- Edited files: `src/components/app-shell.tsx` (header + sidebar), `src/routes/app.tsx` (landing redirect), every existing module route to attach tooltips and wire buttons.
-
-## Estimated size
-
-~25-35 file changes across ~6 turns. I'll commit phase by phase and show you the preview after each so you can course-correct.
-
-## Confirmations I need before starting
-
-1. OK to keep everything client-side mock (no Lovable Cloud)?
-2. OK to consolidate dashboards into a single `/app/dashboard` route that swaps content by selected role (vs separate routes per role)?
-3. OK with print-to-PDF (browser dialog) instead of adding a PDF generator dependency?
-
-If yes to all three, I'll start with Phase 1 + 2 (header, sidebar, executive removal) in the next turn.
+In build mode I will:
+1. Re-scan every route file and `src/lib/session.ts`, `tooltips.ts`, `mock-data.ts`, `investigation-mock.ts` to make sure no module, permission, or behavior is missed.
+2. Write `MASTER_PROMPT.md` in a single pass.
+3. Report the file path back — no other files touched.
